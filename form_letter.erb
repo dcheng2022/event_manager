@@ -7,6 +7,14 @@
   <h1>Thanks <%= name %></h1>
   <p>Thanks for coming to our conference.  We couldn't have done it without you!</p>
 
+  <% if phone %>
+  <p><%= "You signed up on our form to receive mobile alerts.
+  Your number #{phone} has been added to our system." %></p>
+  <% else %>
+  <p><%= "You did not sign up on our form to receive mobile alerts.
+  Please reply to this email with your number if you have changed your mind." %></p>
+  <% end %>
+
   <p>
     Political activism is at the heart of any democracy and your voice needs to be heard.
     Please consider reaching out to your following representatives:
