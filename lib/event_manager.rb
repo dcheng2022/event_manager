@@ -41,6 +41,13 @@ def save_thank_you_letter(id, form_letter)
   end
 end
 
+def parse_regdate(regdate)
+  time = Time.strptime(regdate, "%m/%d/%y %R")
+  weekday = time.strftime("%A")
+  hour = time.hour
+  { day: weekday, hour: hour }
+end
+
 puts 'EventManager initialized.'
 
 contents = CSV.open(
@@ -60,12 +67,10 @@ contents.each do |row|
   zipcode = clean_zipcode(row[:zipcode])
   legislators = legislators_by_zipcode(zipcode)
   phone = clean_phone_number(row[:homephone])
+  time = parse_regdate(row[:regdate])
 
-  time = Time.strptime(row[:regdate], "%m/%d/%y %R")
-  weekday = time.strftime("%A")
-  registrations_by_weekday.include?(weekday) ? registrations_by_weekday[weekday] += 1 : registrations_by_weekday[weekday] = 1
-  hour = time.hour
-  registrations_by_hour.include?(hour) ? registrations_by_hour[hour] += 1 : registrations_by_hour[hour] = 1
+  registrations_by_weekday.include?(time[:day]) ? registrations_by_weekday[time[:day]] += 1 : registrations_by_weekday[time[:day]] = 1
+  registrations_by_hour.include?(time[:hour]) ? registrations_by_hour[time[:hour]] += 1 : registrations_by_hour[time[:hour]] = 1
 
   form_letter = erb_template.result(binding)
 
