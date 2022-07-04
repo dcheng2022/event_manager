@@ -1,6 +1,7 @@
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
+require 'time'
 
 def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
@@ -50,6 +51,7 @@ contents = CSV.open(
 
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
+registrations_by_hour = {}
 
 contents.each do |row|
   id = row[0]
@@ -58,8 +60,15 @@ contents.each do |row|
   legislators = legislators_by_zipcode(zipcode)
   phone = clean_phone_number(row[:homephone])
 
+  hour = Time.strptime(row[:regdate], "%m/%d/%y %R").hour
+  registrations_by_hour.include?(hour) ? registrations_by_hour[hour] += 1 : registrations_by_hour[hour] = 1
+
   form_letter = erb_template.result(binding)
 
   save_thank_you_letter(id, form_letter)
 end
 
+sorted = registrations_by_hour.sort_by { |_key, value| value }
+sorted.each do |key, value|
+  puts "#{key}:00 had #{value} registrations."
+end
